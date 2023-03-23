@@ -369,7 +369,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "SaveGame")
-	FFlowAssetSaveData SaveInstance(TArray<FFlowAssetSaveData>& SavedFlowInstances);
+	FFlowAssetSaveData SaveInstance(TArray<FFlowAssetSaveData>& SavedFlowInstances, FString WorldName);
 
 	UFUNCTION(BlueprintCallable, Category = "SaveGame")
 	void LoadInstance(const FFlowAssetSaveData& AssetRecord);

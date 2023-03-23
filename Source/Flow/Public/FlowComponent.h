@@ -247,4 +247,7 @@ protected:
 public:
 	UFlowSubsystem* GetFlowSubsystem() const;
 	bool IsFlowNetMode(const EFlowNetMode NetMode) const;
+
+protected:
+	FString GetOwningSublevelName();
 };

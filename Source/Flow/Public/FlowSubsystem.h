@@ -429,4 +429,7 @@ public:
 private:
 	void FindComponents(const FGameplayTag& Tag, const bool bExactMatch, TArray<TWeakObjectPtr<UFlowComponent>>& OutComponents) const;
 	void FindComponents(const FGameplayTagContainer& Tags, const EGameplayContainerMatchType MatchType, const bool bExactMatch, TSet<TWeakObjectPtr<UFlowComponent>>& OutComponents) const;
+
+protected:
+	void GetLoadedLevels(TArray<FString> &OutNames, bool bIncludePersistent = true);
 };
