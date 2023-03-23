@@ -411,7 +411,7 @@ void UFlowComponent::SaveRootFlow(TArray<FFlowAssetSaveData>& SavedFlowInstances
 {
 	if (UFlowAsset* FlowAssetInstance = GetRootFlowInstance())
 	{
-		const FFlowAssetSaveData AssetRecord = FlowAssetInstance->SaveInstance(SavedFlowInstances);
+		const FFlowAssetSaveData AssetRecord = FlowAssetInstance->SaveInstance(SavedFlowInstances, GetOwningSublevelName());
 		SavedAssetInstanceName = AssetRecord.InstanceName;
 		return;
 	}
@@ -433,7 +433,7 @@ void UFlowComponent::LoadRootFlow()
 FFlowComponentSaveData UFlowComponent::SaveInstance()
 {
 	FFlowComponentSaveData ComponentRecord;
-	ComponentRecord.WorldName = GetWorld()->GetName();
+	ComponentRecord.WorldName = GetOwningSublevelName();
 	ComponentRecord.ActorInstanceName = GetOwner()->GetName();
 
 	// opportunity to collect data before serializing component
@@ -454,7 +454,7 @@ bool UFlowComponent::LoadInstance()
 	{
 		for (const FFlowComponentSaveData& ComponentRecord : SaveGame->FlowComponents)
 		{
-			if (ComponentRecord.WorldName == GetWorld()->GetName() && ComponentRecord.ActorInstanceName == GetOwner()->GetName())
+			if (ComponentRecord.WorldName == GetOwningSublevelName() && ComponentRecord.ActorInstanceName == GetOwner()->GetName())
 			{
 				FMemoryReader MemoryReader(ComponentRecord.ComponentData, true);
 				FFlowArchive Ar(MemoryReader);
@@ -504,4 +504,8 @@ bool UFlowComponent::IsFlowNetMode(const EFlowNetMode NetMode) const
 		default:
 			return false;
 	}
+}
+
+FString UFlowComponent::GetOwningSublevelName() {
+	return GetOwner()->GetLevel()->GetOuter()->GetName();
 }

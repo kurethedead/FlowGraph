@@ -270,21 +270,25 @@ void UFlowSubsystem::OnGameSaved(UFlowSaveGame* SaveGame)
 	// we keep data bound to other worlds
 	if (GetWorld())
 	{
-		const FString& WorldName = GetWorld()->GetName();
+		TArray<FString> LevelNames;
+		GetLoadedLevels(LevelNames);
 
-		for (int32 i = SaveGame->FlowInstances.Num() - 1; i >= 0; i--)
+ 		for(FString WorldName : LevelNames) 
 		{
-			if (SaveGame->FlowInstances[i].WorldName.IsEmpty() || SaveGame->FlowInstances[i].WorldName == WorldName)
+			for (int32 i = SaveGame->FlowInstances.Num() - 1; i >= 0; i--)
 			{
-				SaveGame->FlowInstances.RemoveAt(i);
+				if (SaveGame->FlowInstances[i].WorldName.IsEmpty() || SaveGame->FlowInstances[i].WorldName == WorldName)
+				{
+					SaveGame->FlowInstances.RemoveAt(i);
+				}
 			}
-		}
 
-		for (int32 i = SaveGame->FlowComponents.Num() - 1; i >= 0; i--)
-		{
-			if (SaveGame->FlowComponents[i].WorldName.IsEmpty() || SaveGame->FlowComponents[i].WorldName == WorldName)
+			for (int32 i = SaveGame->FlowComponents.Num() - 1; i >= 0; i--)
 			{
-				SaveGame->FlowComponents.RemoveAt(i);
+				if (SaveGame->FlowComponents[i].WorldName.IsEmpty() || SaveGame->FlowComponents[i].WorldName == WorldName)
+				{
+					SaveGame->FlowComponents.RemoveAt(i);
+				}
 			}
 		}
 	}
@@ -300,7 +304,7 @@ void UFlowSubsystem::OnGameSaved(UFlowSaveGame* SaveGame)
 			}
 			else
 			{
-				RootInstance.Key->SaveInstance(SaveGame->FlowInstances);
+				RootInstance.Key->SaveInstance(SaveGame->FlowInstances, GetWorld()->GetName());
 			}
 		}
 	}
@@ -336,15 +340,20 @@ void UFlowSubsystem::LoadRootFlow(UObject* Owner, UFlowAsset* FlowAsset, const F
 
 	for (const FFlowAssetSaveData& AssetRecord : LoadedSaveGame->FlowInstances)
 	{
-		if (AssetRecord.InstanceName == SavedAssetInstanceName
-			&& (FlowAsset->IsBoundToWorld() == false || AssetRecord.WorldName == GetWorld()->GetName()))
-		{
-			UFlowAsset* LoadedInstance = CreateRootFlow(Owner, FlowAsset, false);
-			if (LoadedInstance)
+		TArray<FString> LevelNames;
+		GetLoadedLevels(LevelNames);
+ 		for (FString WorldName : LevelNames)
+ 		{
+ 			if (AssetRecord.InstanceName == SavedAssetInstanceName
+				&& (FlowAsset->IsBoundToWorld() == false || AssetRecord.WorldName == WorldName))
 			{
-				LoadedInstance->LoadInstance(AssetRecord);
+				UFlowAsset* LoadedInstance = CreateRootFlow(Owner, FlowAsset, false);
+				if (LoadedInstance)
+				{
+					LoadedInstance->LoadInstance(AssetRecord);
+				}
+				return;
 			}
-			return;
 		}
 	}
 }
@@ -364,15 +373,20 @@ void UFlowSubsystem::LoadSubFlow(UFlowNode_SubGraph* SubGraphNode, const FString
 
 	for (const FFlowAssetSaveData& AssetRecord : LoadedSaveGame->FlowInstances)
 	{
-		if (AssetRecord.InstanceName == SavedAssetInstanceName
-			&& ((SubGraphNode->Asset && SubGraphNode->Asset->IsBoundToWorld() == false) || AssetRecord.WorldName == GetWorld()->GetName()))
-		{
-			UFlowAsset* LoadedInstance = CreateSubFlow(SubGraphNode, SavedAssetInstanceName);
-			if (LoadedInstance)
+		TArray<FString> LevelNames;
+		GetLoadedLevels(LevelNames);
+ 		for (FString WorldName : LevelNames)
+ 		{
+			if (AssetRecord.InstanceName == SavedAssetInstanceName
+				&& ((SubGraphNode->Asset && SubGraphNode->Asset->IsBoundToWorld() == false) || AssetRecord.WorldName == WorldName))
 			{
-				LoadedInstance->LoadInstance(AssetRecord);
+				UFlowAsset* LoadedInstance = CreateSubFlow(SubGraphNode, SavedAssetInstanceName);
+				if (LoadedInstance)
+				{
+					LoadedInstance->LoadInstance(AssetRecord);
+				}
+				return;
 			}
-			return;
 		}
 	}
 }
@@ -616,6 +630,22 @@ void UFlowSubsystem::FindComponents(const FGameplayTagContainer& Tags, const EGa
 			{
 				OutComponents.Emplace(Component);
 			}
+		}
+	}
+}
+
+void UFlowSubsystem::GetLoadedLevels(TArray<FString> &OutNames, bool bIncludePersistent) 
+{
+	if(bIncludePersistent) 
+	{
+		OutNames.Add(GetWorld()->GetName());
+	}
+	
+	const TArray<ULevelStreaming*>& StreamedLevels = GetWorld()->GetStreamingLevels();
+ 	for (ULevelStreaming* StreamingLevel : StreamedLevels)
+ 	{
+		if(StreamingLevel->IsLevelLoaded()) {
+			OutNames.Add(UWorld::RemovePIEPrefix(FPackageName::GetShortName(StreamingLevel->GetWorldAssetPackageName())));
 		}
 	}
 }

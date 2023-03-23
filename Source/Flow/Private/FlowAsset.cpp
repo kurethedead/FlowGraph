@@ -475,10 +475,10 @@ UFlowAsset* UFlowAsset::GetParentInstance() const
 	return NodeOwningThisAssetInstance.IsValid() ? NodeOwningThisAssetInstance.Get()->GetFlowAsset() : nullptr;
 }
 
-FFlowAssetSaveData UFlowAsset::SaveInstance(TArray<FFlowAssetSaveData>& SavedFlowInstances)
+FFlowAssetSaveData UFlowAsset::SaveInstance(TArray<FFlowAssetSaveData>& SavedFlowInstances, FString WorldName)
 {
 	FFlowAssetSaveData AssetRecord;
-	AssetRecord.WorldName = IsBoundToWorld() ? GetWorld()->GetName() : FString();
+	AssetRecord.WorldName = IsBoundToWorld() ? WorldName : FString();
 	AssetRecord.InstanceName = GetName();
 
 	// opportunity to collect data before serializing asset
@@ -494,7 +494,7 @@ FFlowAssetSaveData UFlowAsset::SaveInstance(TArray<FFlowAssetSaveData>& SavedFlo
 				const TWeakObjectPtr<UFlowAsset> SubFlowInstance = GetFlowInstance(SubGraphNode);
 				if (SubFlowInstance.IsValid())
 				{
-					const FFlowAssetSaveData SubAssetRecord = SubFlowInstance->SaveInstance(SavedFlowInstances);
+					const FFlowAssetSaveData SubAssetRecord = SubFlowInstance->SaveInstance(SavedFlowInstances, WorldName);
 					SubGraphNode->SavedAssetInstanceName = SubAssetRecord.InstanceName;
 				}
 			}
