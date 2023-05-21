@@ -14,6 +14,7 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "UObject/UObjectHash.h"
+#include "Engine/LevelStreaming.h"
 
 UFlowSubsystem::UFlowSubsystem()
 	: UGameInstanceSubsystem()
