@@ -14,6 +14,7 @@
 #include "Logging/MessageLog.h"
 #include "Misc/Paths.h"
 #include "UObject/UObjectHash.h"
+#include "Engine/LevelStreaming.h"
 
 #if WITH_EDITOR
 FNativeFlowAssetEvent UFlowSubsystem::OnInstancedTemplateAdded;
