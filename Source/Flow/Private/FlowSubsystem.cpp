@@ -409,7 +409,7 @@ void UFlowSubsystem::LoadSubFlow(UFlowNode_SubGraph* SubGraphNode, const FString
 
 	UFlowAsset* SubGraphAsset = SubGraphNode->Asset.LoadSynchronous();
 
-	for (const FFlowAssetSaveData &AssetRecord : LoadedSaveGame->FlowInstances)
+	for (const FFlowAssetSaveData& AssetRecord : LoadedSaveGame->FlowInstances)
 	{
 		TArray<FString> LevelNames;
 		GetLoadedLevels(LevelNames);
