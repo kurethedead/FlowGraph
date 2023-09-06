@@ -2,7 +2,7 @@
 
 #include "Graph/Nodes/FlowGraphNode.h"
 
-#include "Asset/FlowDebugger.h"
+#include "Asset/FlowDebuggerSubsystem.h"
 #include "FlowEditorCommands.h"
 #include "Graph/FlowGraph.h"
 #include "Graph/FlowGraphEditorSettings.h"
@@ -25,7 +25,6 @@
 #include "SourceCodeNavigation.h"
 #include "Textures/SlateIcon.h"
 #include "ToolMenuSection.h"
-#include "UnrealEd.h"
 
 #define LOCTEXT_NAMESPACE "FlowGraphNode"
 
@@ -107,9 +106,14 @@ UFlowGraphNode::UFlowGraphNode(const FObjectInitializer& ObjectInitializer)
 	OrphanedPinSaveMode = ESaveOrphanPinMode::SaveAll;
 }
 
-void UFlowGraphNode::SetFlowNode(UFlowNode* InFlowNode)
+void UFlowGraphNode::SetNodeTemplate(UFlowNode* InFlowNode)
 {
 	FlowNode = InFlowNode;
+}
+
+const UFlowNode* UFlowGraphNode::GetNodeTemplate() const
+{
+	return FlowNode;
 }
 
 UFlowNode* UFlowGraphNode::GetFlowNode() const
@@ -237,6 +241,11 @@ void UFlowGraphNode::OnExternalChange()
 
 	ReconstructNode();
 	GetGraph()->NotifyGraphChanged();
+}
+
+void UFlowGraphNode::OnGraphRefresh()
+{
+	RefreshContextPins(true);
 }
 
 bool UFlowGraphNode::CanCreateUnderSpecifiedSchema(const UEdGraphSchema* Schema) const
@@ -1020,7 +1029,7 @@ void UFlowGraphNode::TryPausingSession(bool bPauseSession)
 		FEditorDelegates::ResumePIE.AddUObject(this, &UFlowGraphNode::OnResumePIE);
 		FEditorDelegates::EndPIE.AddUObject(this, &UFlowGraphNode::OnEndPIE);
 
-		FFlowDebugger::PausePlaySession();
+		UFlowDebuggerSubsystem::PausePlaySession();
 	}
 }
 

@@ -82,7 +82,7 @@ protected:
 public:
 #if WITH_EDITOR
 	virtual bool SupportsContextPins() const override { return true; }
-	virtual TArray<FName> GetContextOutputs() override;
+	virtual TArray<FFlowPin> GetContextOutputs() override;
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
@@ -120,6 +120,8 @@ public:
 
 #if WITH_EDITOR
 	virtual FString GetNodeDescription() const override;
+	virtual EDataValidationResult ValidateNode() override;
+	
 	virtual FString GetStatusString() const override;
 	virtual UObject* GetAssetToEdit() override;
 #endif

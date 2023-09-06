@@ -21,7 +21,7 @@ struct FLOW_API FFlowPin
 	FString PinToolTip;
 
 	static inline FName AnyPinName = TEXT("AnyPinName");
-	
+
 	FFlowPin()
 		: PinName(NAME_None)
 	{

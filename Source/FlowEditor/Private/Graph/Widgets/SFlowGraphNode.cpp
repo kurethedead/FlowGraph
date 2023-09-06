@@ -2,10 +2,8 @@
 
 #include "Graph/Widgets/SFlowGraphNode.h"
 #include "FlowEditorStyle.h"
-#include "Graph/FlowGraphEditorSettings.h"
 #include "Graph/FlowGraphSettings.h"
 
-#include "FlowAsset.h"
 #include "Nodes/FlowNode.h"
 
 #include "EdGraph/EdGraphPin.h"
@@ -23,6 +21,7 @@
 #include "SNodePanel.h"
 #include "Styling/SlateColor.h"
 #include "TutorialMetaData.h"
+#include "Graph/FlowGraphEditorSettings.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBorder.h"
@@ -57,7 +56,7 @@ void SFlowGraphNode::Construct(const FArguments& InArgs, UFlowGraphNode* InNode)
 
 void SFlowGraphNode::GetNodeInfoPopups(FNodeInfoContext* Context, TArray<FGraphInformationPopupInfo>& Popups) const
 {
-	const FString Description = FlowGraphNode->GetNodeDescription();
+	const FString Description = GEditor->PlayWorld && UFlowGraphEditorSettings::Get()->bShowNodeDescriptionInPIE ? FString() : FlowGraphNode->GetNodeDescription();
 	if (!Description.IsEmpty())
 	{
 		const FGraphInformationPopupInfo DescriptionPopup = FGraphInformationPopupInfo(nullptr, UFlowGraphSettings::Get()->NodeDescriptionBackground, Description);
@@ -362,6 +361,38 @@ void SFlowGraphNode::UpdateErrorInfo()
 {
 	if (const UFlowNode* FlowNode = FlowGraphNode->GetFlowNode())
 	{
+		if (FlowNode->ValidationLog.Messages.Num() > 0)
+		{
+			EMessageSeverity::Type MaxSeverity = EMessageSeverity::Info;
+			for (const TSharedRef<FTokenizedMessage>& Message : FlowNode->ValidationLog.Messages)
+			{
+				if (Message->GetSeverity() < MaxSeverity)
+				{
+					MaxSeverity = Message->GetSeverity();
+				}
+			}
+
+			switch(MaxSeverity)
+			{
+				case EMessageSeverity::Error:
+					ErrorMsg = FString(TEXT("ERROR!"));
+					ErrorColor = FAppStyle::GetColor("ErrorReporting.BackgroundColor");
+					break;
+				case EMessageSeverity::PerformanceWarning:
+				case EMessageSeverity::Warning:
+					ErrorMsg = FString(TEXT("WARNING!"));
+					ErrorColor = FAppStyle::GetColor("ErrorReporting.WarningBackgroundColor");
+					break;
+				case EMessageSeverity::Info:
+					ErrorMsg = FString(TEXT("NOTE"));
+					ErrorColor = FAppStyle::GetColor("InfoReporting.BackgroundColor");
+					break;
+				default: ;
+			}
+
+			return;
+		}
+
 		if (FlowNode->GetClass()->HasAnyClassFlags(CLASS_Deprecated) || FlowNode->bNodeDeprecated)
 		{
 			ErrorMsg = FlowNode->ReplacedBy ? FString::Printf(TEXT(" REPLACED BY: %s "), *FlowNode->ReplacedBy->GetName()) : FString(TEXT(" DEPRECATED! "));

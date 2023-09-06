@@ -17,6 +17,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSimpleFlowEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSimpleFlowComponentEvent, UFlowComponent*, Component);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FTaggedFlowComponentEvent, UFlowComponent*, Component, const FGameplayTagContainer&, Tags);
 
+DECLARE_DELEGATE_OneParam(FNativeFlowAssetEvent, class UFlowAsset*);
+
 /**
  * Flow Subsystem
  * - manages lifetime of Flow Graphs
@@ -31,11 +33,11 @@ class FLOW_API UFlowSubsystem : public UGameInstanceSubsystem
 public:
 	UFlowSubsystem();
 
-private:
 	friend class UFlowAsset;
 	friend class UFlowComponent;
 	friend class UFlowNode_SubGraph;
 
+private:
 	/* All asset templates with active instances */
 	UPROPERTY()
 	TArray<UFlowAsset*> InstancedTemplates;
@@ -50,6 +52,15 @@ private:
 
 	FStreamableManager Streamable;
 
+#if WITH_EDITOR
+public:
+	/* Called after creating the first instance of given Flow Asset */
+	static FNativeFlowAssetEvent OnInstancedTemplateAdded;
+
+	/* Called just before removing the last instance of given Flow Asset */
+	static FNativeFlowAssetEvent OnInstancedTemplateRemoved;
+#endif
+	
 protected:
 	UPROPERTY()
 	UFlowSaveGame* LoadedSaveGame;
@@ -85,7 +96,9 @@ protected:
 	void RemoveSubFlow(UFlowNode_SubGraph* SubGraphNode, const EFlowFinishPolicy FinishPolicy);
 
 	UFlowAsset* CreateFlowInstance(const TWeakObjectPtr<UObject> Owner, TSoftObjectPtr<UFlowAsset> FlowAsset, FString NewInstanceName = FString());
-	void RemoveInstancedTemplate(UFlowAsset* Template);
+
+	virtual void AddInstancedTemplate(UFlowAsset* Template);
+	virtual void RemoveInstancedTemplate(UFlowAsset* Template);
 
 public:
 	/* Returns all assets instanced by object from another system like World Settings */
@@ -106,7 +119,7 @@ public:
 	virtual UWorld* GetWorld() const override;
 
 //////////////////////////////////////////////////////////////////////////
-// SaveGame
+// SaveGame support
 
 	UPROPERTY(BlueprintAssignable, Category = "FlowSubsystem")
 	FSimpleFlowEvent OnSaveGame;
@@ -117,7 +130,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FlowSubsystem")
 	virtual void OnGameLoaded(UFlowSaveGame* SaveGame);
 
+	UFUNCTION(BlueprintCallable, Category = "FlowSubsystem")
 	virtual void LoadRootFlow(UObject* Owner, UFlowAsset* FlowAsset, const FString& SavedAssetInstanceName);
+
+	UFUNCTION(BlueprintCallable, Category = "FlowSubsystem")
 	virtual void LoadSubFlow(UFlowNode_SubGraph* SubGraphNode, const FString& SavedAssetInstanceName);
 
 	UFUNCTION(BlueprintPure, Category = "FlowSubsystem")
@@ -126,7 +142,7 @@ public:
 //////////////////////////////////////////////////////////////////////////
 // Component Registry
 
-private:
+protected:
 	/* All the Flow Components currently existing in the world */
 	TMultiMap<FGameplayTag, TWeakObjectPtr<UFlowComponent>> FlowComponentRegistry;
 

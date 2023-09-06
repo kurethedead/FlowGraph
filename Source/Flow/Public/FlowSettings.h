@@ -12,7 +12,7 @@ class UFlowNode;
  *
  */
 UCLASS(Config = Game, defaultconfig, meta = (DisplayName = "Flow"))
-class UFlowSettings final : public UDeveloperSettings
+class FLOW_API UFlowSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
 
@@ -29,4 +29,12 @@ class UFlowSettings final : public UDeveloperSettings
 	
 	UPROPERTY(Config, EditAnywhere, Category = "SaveSystem")
 	bool bWarnAboutMissingIdentityTags;
+
+	// If enabled, runtime logs will be added when a flow node signal mode is set to Disabled
+	UPROPERTY(Config, EditAnywhere, Category = "Flow")
+	bool bLogOnSignalDisabled;
+
+	// If enabled, runtime logs will be added when a flow node signal mode is set to Pass-through
+	UPROPERTY(Config, EditAnywhere, Category = "Flow")
+	bool bLogOnSignalPassthrough;
 };

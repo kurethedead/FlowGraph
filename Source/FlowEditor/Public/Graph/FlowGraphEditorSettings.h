@@ -16,7 +16,7 @@ enum class EFlowNodeDoubleClickTarget : uint8
  *
  */
 UCLASS(Config = EditorPerProjectUserSettings, meta = (DisplayName = "Flow Graph"))
-class UFlowGraphEditorSettings final : public UDeveloperSettings
+class FLOWEDITOR_API UFlowGraphEditorSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
 
@@ -29,6 +29,10 @@ class UFlowGraphEditorSettings final : public UDeveloperSettings
 	// Displays information on the graph node, either C++ class name or path to blueprint asset
 	UPROPERTY(config, EditAnywhere, Category = "Nodes")
 	bool bShowNodeClass;
+
+	// Hides the node description when you play in editor and only shows node status string.
+	UPROPERTY(config, EditAnywhere, Category = "Nodes")
+	bool bShowNodeDescriptionInPIE;
 
 	// Renders preview of entire graph while hovering over 
 	UPROPERTY(config, EditAnywhere, Category = "Nodes")
