@@ -673,14 +673,13 @@ void UFlowSubsystem::FindComponents(const FGameplayTagContainer& Tags, const EGa
 
 void UFlowSubsystem::GetLoadedLevels(TArray<FString> &OutNames)
 {
-
 	OutNames.Add(GetWorld()->GetName());
 	const TArray<ULevelStreaming *> &StreamedLevels = GetWorld()->GetStreamingLevels();
 	for (ULevelStreaming *StreamingLevel : StreamedLevels)
 	{
 		if (StreamingLevel->IsLevelLoaded())
 		{
-			OutNames.Add(UWorld::RemovePIEPrefix(FPackageName::GetShortName(StreamingLevel->GetWorldAssetPackageName())));
+			OutNames.Add(StreamingLevel->GetLoadedLevel()->GetOuter()->GetName());
 		}
 	}
 }
