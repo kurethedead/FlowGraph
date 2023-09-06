@@ -374,14 +374,14 @@ void UFlowSubsystem::OnGameLoaded(UFlowSaveGame* SaveGame)
 	// it's recommended to do this by overriding method in the subclass
 }
 
-void UFlowSubsystem::LoadRootFlow(UObject* Owner, UFlowAsset* FlowAsset, const FString &SavedAssetInstanceName)
+void UFlowSubsystem::LoadRootFlow(UObject* Owner, UFlowAsset* FlowAsset, const FString& SavedAssetInstanceName)
 {
 	if (FlowAsset == nullptr || SavedAssetInstanceName.IsEmpty())
 	{
 		return;
 	}
 
-	for (const FFlowAssetSaveData &AssetRecord : LoadedSaveGame->FlowInstances)
+	for (const FFlowAssetSaveData& AssetRecord : LoadedSaveGame->FlowInstances)
 	{
 		TArray<FString> LevelNames;
 		GetLoadedLevels(LevelNames);
