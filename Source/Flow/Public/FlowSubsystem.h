@@ -431,5 +431,5 @@ private:
 	void FindComponents(const FGameplayTagContainer& Tags, const EGameplayContainerMatchType MatchType, const bool bExactMatch, TSet<TWeakObjectPtr<UFlowComponent>>& OutComponents) const;
 
 protected:
-	void GetLoadedLevels(TArray<FString> &OutNames, bool bIncludePersistent = true);
+	void GetLoadedLevels(TArray<FString>& OutNames);
 };

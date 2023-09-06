@@ -249,5 +249,5 @@ public:
 	bool IsFlowNetMode(const EFlowNetMode NetMode) const;
 
 protected:
-	FString GetOwningSublevelName();
+	FString GetOwningLevelName();
 };
